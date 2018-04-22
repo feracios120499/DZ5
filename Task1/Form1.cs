@@ -21,28 +21,29 @@ namespace Task1
         {
             public Page Page { get; set; }
             public RichTextBox TextBox { get; set; }
-            public MyPage(Page page,RichTextBox textBox)
+            public MyPage(Page page, RichTextBox textBox)
             {
                 this.Page = page;
                 this.TextBox = textBox;
+                
             }
         }
-        public void ClickPage(object sender,EventArgs e)
+        public void ClickPage(object sender, EventArgs e)
         {
-            foreach(var item in listPages)
+            foreach (var item in listPages)
             {
                 if (item.Page == sender)
                 {
                     item.TextBox.BringToFront();
                     textBoxText = item.TextBox;
-                    this.Text=item.Page.GetName();
+                    this.Text = item.Page.GetName();
                 }
             }
         }
-        public void DeletePage(object sender,EventArgs e)
+        public void DeletePage(object sender, EventArgs e)
         {
             MyPage page = null;
-            foreach(var item in listPages)
+            foreach (var item in listPages)
             {
                 if (item.Page == sender)
                 {
@@ -54,7 +55,7 @@ namespace Task1
             listPages.Remove(page);
             if (listPages.Count != 0)
                 listPages.Last().Page.SetActiv();
-            
+
         }
         public void CreatePage(Page page)
         {
@@ -62,16 +63,16 @@ namespace Task1
             page.Dock = DockStyle.Left;
             page.BringToFront();
             page.eventActiv += ClickPage;
-            RichTextBox textBox=new RichTextBox();
+            RichTextBox textBox = new RichTextBox();
             panelTextBoxs.Controls.Add(textBox);
             textBox.Dock = DockStyle.Fill;
-            textBox.TextChanged+= textBoxText_TextChanged;
+            textBox.TextChanged += textBoxText_TextChanged;
             textBox.MouseClick += textBoxText_MouseClick;
             textBox.PreviewKeyDown += textBoxText_PreviewKeyDown;
             listPages.Add(new MyPage(page, textBox));
             page.eventDelete += DeletePage;
             page.SetActiv();
-            if(BlackToolStripMenuItem.Checked)
+            if (BlackToolStripMenuItem.Checked)
                 BlackTextBox(listPages.Last());
         }
         List<MyPage> listPages = new List<MyPage>();
@@ -114,12 +115,12 @@ namespace Task1
             {
                 Page page = new Page(Path.GetFileName(dialog.FileName));
                 CreatePage(page);
-                if (Path.GetExtension(dialog.FileName) == ".txt"|| Path.GetExtension(dialog.FileName) ==".cs")
+                if (Path.GetExtension(dialog.FileName) == ".txt" || Path.GetExtension(dialog.FileName) == ".cs")
                 {
                     textBoxText.Text = File.ReadAllText(dialog.FileName);
-                    if(Path.GetExtension(dialog.FileName) == ".cs"&&!SyntToolStripMenuItem.Checked)
+                    if (Path.GetExtension(dialog.FileName) == ".cs" && !SyntToolStripMenuItem.Checked)
                     {
-                        
+
                         SyntToolStripMenuItem.PerformClick();
                     }
                 }
@@ -127,14 +128,17 @@ namespace Task1
                 {
                     textBoxText.LoadFile(dialog.FileName, RichTextBoxStreamType.RichText);
                 }
-                
+
                 this.Text = dialog.FileName;
             }
         }
 
         private void toolStripButtonSave_Click(object sender, EventArgs e)
         {
-            if (Path.GetExtension(this.Text) == ".txt"|| Path.GetExtension(this.Text)==".cs")
+            if (listPages.Count == 0)
+                return;
+
+            if (Path.GetExtension(this.Text) == ".txt" || Path.GetExtension(this.Text) == ".cs")
             {
                 Save(true);
             }
@@ -142,6 +146,7 @@ namespace Task1
             {
                 Save(false);
             }
+
 
         }
         private void Save(bool flag)
@@ -171,26 +176,40 @@ namespace Task1
 
         private void toolStripButtonCopy_Click(object sender, EventArgs e)
         {
-            textBoxText.Copy();
+            if(listPages.Count!=0)
+                textBoxText.Copy();
         }
 
         private void toolStripButtonCut_Click(object sender, EventArgs e)
         {
-            textBoxText.Cut();
+            if(listPages.Count!=0)
+                textBoxText.Cut();
         }
 
         private void toolStripButtonPaste_Click(object sender, EventArgs e)
         {
-            textBoxText.Paste();
+            if (listPages.Count != 0)
+                textBoxText.Paste();
         }
 
         private void toolStripButtonCancel_Click(object sender, EventArgs e)
         {
-            textBoxText.Undo();
+            if (listPages.Count != 0)
+            {
+                textBoxText.TextChanged -= textBoxText_TextChanged;
+                if(SyntToolStripMenuItem.Checked)
+                    textBoxText.Undo();
+                textBoxText.Undo();
+                textBoxText.TextChanged += textBoxText_TextChanged;
+                //textBoxText.Text += "";
+            }
+            
         }
 
         private void toolStripButtonColorText_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             ColorDialog dialog = new ColorDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
@@ -200,6 +219,8 @@ namespace Task1
 
         private void toolStripButtonBackColor_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             ColorDialog dialog = new ColorDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
@@ -209,6 +230,8 @@ namespace Task1
 
         private void toolStripButtonFont_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             FontDialog dialog = new FontDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
@@ -234,6 +257,8 @@ namespace Task1
 
         private void SaveAsКакToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.Filter = "Text files(*.txt) | *.txt|RTF Files| *.rtf|C#(*.cs) | *.cs";
             dialog.FilterIndex = 0;
@@ -248,26 +273,36 @@ namespace Task1
 
         private void CopyToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             textBoxText.Copy();
         }
 
         private void CutToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             textBoxText.Cut();
         }
 
         private void PasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             textBoxText.Paste();
         }
 
         private void CancelToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             textBoxText.Undo();
         }
 
         private void SelectAllВсёToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             textBoxText.SelectAll();
         }
 
@@ -303,6 +338,8 @@ namespace Task1
 
         private void ContextCancelToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (listPages.Count == 0)
+                return;
             textBoxText.Undo();
         }
 
@@ -311,7 +348,7 @@ namespace Task1
         {
             var textBox = (sender as RichTextBox);
             SyntaxHighlighting.RePaint(ref textBox, textColor);
-
+            
         }
 
         private void найстрокаТекстаToolStripMenuItem_Click(object sender, EventArgs e)
@@ -499,7 +536,7 @@ namespace Task1
         #endregion
         private void BlackInterface()
         {
-            
+
             foreach (var item in listPages)
             {
                 BlackTextBox(item);
@@ -515,7 +552,7 @@ namespace Task1
                 BlackInterfaceForDropDownItem(item.DropDownItems);
             }
             statusStrip1.BackColor = Color.FromArgb(0, 122, 204);
-            foreach(ToolStripStatusLabel item in statusStrip1.Items)
+            foreach (ToolStripStatusLabel item in statusStrip1.Items)
             {
                 item.ForeColor = Color.White;
             }
@@ -561,8 +598,8 @@ namespace Task1
             {
                 WhiteTextBox(item);
             }
-            
-            
+
+
             menuStrip1.BackColor = Color.White;
             toolStrip1.BackColor = Color.White;
             menuStrip1.ForeColor = Color.Black;
@@ -590,20 +627,28 @@ namespace Task1
 
         private void SyntToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+
             SyntToolStripMenuItem.Checked = !SyntToolStripMenuItem.Checked;
             if (SyntToolStripMenuItem.Checked)
             {
                 SyntaxHighlighting.IsOn = true;
-                foreach(var item in listPages)
+                foreach (var item in listPages)
                 {
                     var textBox = item.TextBox;
                     SyntaxHighlighting.RePaint(ref textBox, textColor);
                 }
+                toolStripButtonBackColor.Visible = false;
+                toolStripButtonColorText.Visible = false;
+                toolStripButtonFont.Visible = false;
+                toolStripSeparator2.Visible = false;
             }
             else
             {
                 SyntaxHighlighting.IsOn = false;
+                toolStripButtonBackColor.Visible = true;
+                toolStripButtonColorText.Visible = true;
+                toolStripButtonFont.Visible = true;
+                toolStripSeparator2.Visible = true;
             }
         }
     }

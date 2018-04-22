@@ -47,15 +47,18 @@ namespace Task1
             // we need at least one repaint to happen...
 
             List<Selection> selections = new List<Selection>();
-            MatchCollection allWords = Regex.Matches(textBoxText.Text, @"\busing\b|\bnamespace\b|\bpublic\b|\bvoid\b|\bprivate\b|\bint\b", RegexOptions.Multiline | RegexOptions.Compiled);
+            RichTextBox textBox = new RichTextBox();
+            textBox.Text = textBoxText.Text;
+            MatchCollection allWords = Regex.Matches(textBox.Text, @"\busing\b|\bnamespace\b|\bpublic\b|\bvoid\b|\bprivate\b|\bint\b", RegexOptions.Multiline | RegexOptions.Compiled);
             int currentSelection = textBoxText.SelectionStart;
             Color currentColor = Color.Black;
+            
             foreach (Match ip in allWords)
             {
-                textBoxText.SelectionStart = ip.Index;
-                textBoxText.SelectionLength = ip.Length;
-                
-                    textBoxText.SelectionColor = Color.FromArgb(86, 150, 183);
+                textBox.SelectionStart = ip.Index;
+                textBox.SelectionLength = ip.Length;
+
+                textBox.SelectionColor = Color.FromArgb(86, 150, 183);
 
                 selections.Add(new Selection { Start = ip.Index, End = ip.Index + ip.Length-1 });
             }
@@ -65,26 +68,29 @@ namespace Task1
                 for (int i = 0; i < selections.Count; i++)
                 {
 
-                    textBoxText.SelectionStart = start;
-                    textBoxText.SelectionLength = selections[i].Start - start;
+                    textBox.SelectionStart = start;
+                    textBox.SelectionLength = selections[i].Start - start;
                     start = selections[i].End + 1;
-                    textBoxText.SelectionColor = textColor;
+                    textBox.SelectionColor = textColor;
                     
 
                 }
-                textBoxText.SelectionStart = start;
-                if(start<textBoxText.TextLength)
-                    textBoxText.SelectionLength = textBoxText.TextLength - start;
+                textBox.SelectionStart = start;
+                if(start< textBox.TextLength)
+                    textBox.SelectionLength = textBox.TextLength - start;
                 else
-                    textBoxText.SelectionLength = textBoxText.TextLength - (start-1);
-                textBoxText.SelectionColor = textColor;
+                    textBox.SelectionLength = textBox.TextLength - (start-1);
+                textBox.SelectionColor = textColor;
             }
             else
             {
-                textBoxText.SelectionStart = 0;
-                textBoxText.SelectionLength = textBoxText.TextLength;
-                textBoxText.SelectionColor = textColor;
+                textBox.SelectionStart = 0;
+                textBox.SelectionLength = textBox.TextLength;
+                textBox.SelectionColor = textColor;
             }
+            textBoxText.SelectAll();
+            textBox.SelectAll();
+            textBoxText.SelectedRtf = textBox.SelectedRtf;
             textBoxText.SelectionStart = currentSelection;
             textBoxText.SelectionLength = 0;
             textBoxText.SelectionColor = textColor;
